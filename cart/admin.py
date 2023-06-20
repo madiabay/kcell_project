@@ -26,8 +26,12 @@ class AddressAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('title', 'stock'), }
+
+
 admin.site.register(Order)
-admin.site.register(Product)
 admin.site.register(Payment)
 admin.site.register(Category)
 admin.site.register(OrderItem)

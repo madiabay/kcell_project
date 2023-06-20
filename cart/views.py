@@ -13,6 +13,8 @@ from django.shortcuts import (get_object_or_404, reverse, redirect)
 from django.utils import timezone
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator, EmptyPage
+
 
 from .forms import (
     AddToCartForm,
@@ -36,22 +38,42 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class ProductListView(generic.ListView):
-    template_name: str = 'cart/product_list.html'
+    model = Product
+    template_name = 'cart/product_list.html'
+    paginate_by = 5  # Количество продуктов на странице
 
     def get_queryset(self):
-        qs = Product.objects.all()
-        category = self.request.GET.get('category', None)
-        if not category:
-            return qs
-        return qs.filter(
-            Q(primary_category__name=category) |
-            Q(secondary_categories__name=category)
-        ).distinct()
+        qs = super().get_queryset()
+        category = self.request.GET.get('category')
+        search_query = self.request.GET.get('search')
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super(ProductListView, self).get_context_data(**kwargs)
-        context.update({"categories": Category.objects.values("name")})
+        if category:
+            qs = qs.filter(
+                Q(primary_category__name=category) |
+                Q(secondary_categories__name=category)
+            ).distinct()
+
+        if search_query:
+            qs = qs.filter(title__icontains=search_query)
+
+        if min_price:
+            qs = qs.filter(price__gte=min_price)
+
+        if max_price:
+            qs = qs.filter(price__lte=max_price)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.values("name")
+        context['search_query'] = self.request.GET.get('search')
+        context['min_price'] = self.request.GET.get('min_price')
+        context['max_price'] = self.request.GET.get('max_price')
         return context
+
 
 
 class ProductDetailView(generic.FormView):
