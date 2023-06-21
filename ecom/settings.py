@@ -148,7 +148,7 @@ STATICFILES_DIRS: Tuple[Path, ...] = (
     BASE_DIR / 'static',
 )
 
-STATIC_ROOT: Path = BASE_DIR / 'staticfiles'
+STATIC_ROOT: Path = BASE_DIR / 'static_root'
 MEDIA_ROOT: Path = BASE_DIR / 'media_root'
 # endregion
 
