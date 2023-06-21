@@ -1,4 +1,6 @@
 import os
+import django_heroku
+import dj_database_url
 from pathlib import Path
 from typing import (List, Dict, Tuple, Any)
 
@@ -146,7 +148,7 @@ STATICFILES_DIRS: Tuple[Path, ...] = (
     BASE_DIR / 'static',
 )
 
-STATIC_ROOT: Path = BASE_DIR / 'static_root'
+STATIC_ROOT: Path = BASE_DIR / 'staticfiles'
 MEDIA_ROOT: Path = BASE_DIR / 'media_root'
 # endregion
 
@@ -159,3 +161,5 @@ STRIPE_PUBLIC_KEY: str = env.str('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY: str = env.str('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET: str = env.str('STRIPE_WEBHOOK_SECRET', '')
 # endregion
+
+django_heroku.settings(locals())
